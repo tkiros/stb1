@@ -1,0 +1,51 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Rust Trading Engine
+  - job_name: 'rust-trading-engine'
+    static_configs:
+      - targets: ['rust-engine:8080']
+    scrape_interval: 5s
+    metrics_path: /metrics
+
+  # TypeScript API Server
+  - job_name: 'typescript-api'
+    static_configs:
+      - targets: ['typescript-api:3000']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # Node.js Application Metrics (if using prom-client)
+  - job_name: 'nodejs'
+    static_configs:
+      - targets: ['typescript-api:3000']
+    scrape_interval: 30s
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-timescale:5432']
+    scrape_interval: 30s
+
+  # Docker containers health
+  - job_name: 'docker-health'
+    static_configs:
+      - targets: ['rust-engine:8080', 'typescript-api:3000', 'dashboard:3000']
+    scrape_interval: 30s
